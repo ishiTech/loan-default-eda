@@ -172,6 +172,26 @@ model.fit(X_train_scaled, y_train)
 y_pred = model.predict(X_test_scaled)
 
 # ===================== CLASSIFICATION REPORT =====================
-print("="*30 + "Classification Report" + "="*30)
+print("="*30 + "Classification Report Initial" + "="*30)
 from sklearn.metrics import classification_report
 print(classification_report(y_test, y_pred))
+
+# =========================================
+# OPTIMISING THE MODEL FOR BETTER RESULT
+# =========================================
+print("="*30 + "OPTIMIZING VIA 'CLASS WEIGHTING'" + "="*30)
+
+# CLASS WEIGHTING
+
+model_2 = LogisticRegression(max_iter=500, class_weight='balanced')
+model_2.fit(X_train_scaled, y_train)
+
+y_pred = model_2.predict(X_test_scaled)
+print(classification_report(y_test, y_pred))
+
+
+# CLASSIFICATION THRESHOLD
+print("="*20 + "OPTIMIZING VIA 'CLASSIFICATION THRESHOLD'" + "="*20)
+y_proba = model_2.predict_proba(X_test_scaled)[:,1]
+y_pred_custom = (y_proba >= 0.3).astype(int)
+print(classification_report(y_test, y_pred_custom))
