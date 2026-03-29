@@ -118,3 +118,60 @@ plt.show()
 sns.boxplot(x=df['Upfront_charges_log'])
 plt.title('Upfront Charges (Log Transformed)')
 plt.show()
+
+# =========================================
+# MODEL TRAINING (LOGISTIC REGRESSION)
+# =========================================
+
+print("="*60)
+print("MODEL TRAINING")
+print("="*60)
+
+# FEATURE SELECTION
+df = df.drop(
+    columns =[
+        "ID", "year", "income_log", "property_value_log", "Upfront_charges_log",
+        "Gender", "Interest_rate_spread"
+    ]   
+)
+
+# Checking number of unique values of categorical columns to decide encoding method
+obj_col = df.select_dtypes(include='object').columns
+print(f"\nNumber of Unique values per Categorical Column: \n{df[obj_col].nunique()}")
+
+# Separate target variable
+X = df.drop(columns=['Status'])
+y = df['Status']
+
+# One hot Encoding
+X = pd.get_dummies(X, drop_first=True)
+
+# Split the data in training and test datasets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,y, test_size=0.2, random_state = 41
+)
+
+# =====================SCALING THE DATA=====================
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# =====================Training the model=====================
+from sklearn.linear_model import LogisticRegression
+
+# Instance of model
+model = LogisticRegression(max_iter=500)
+
+# Train the model
+model.fit(X_train_scaled, y_train)
+
+y_pred = model.predict(X_test_scaled)
+
+# ===================== CLASSIFICATION REPORT =====================
+print("="*30 + "Classification Report" + "="*30)
+from sklearn.metrics import classification_report
+print(classification_report(y_test, y_pred))
